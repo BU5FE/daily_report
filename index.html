@@ -15,6 +15,7 @@
             --border: #bbf7d0;          /* Bordi sfumati in verde chiaro */
             --accent-coordinatore: #16a34a; /* Verde specifico per il coordinatore */
             --warning-line: #dc2626;    /* Linea rossa di accento per i ritardi */
+            --time-label-color: #2563eb; /* Colore blu per evidenziare le fasce orarie variabili */
         }
 
         body {
@@ -109,6 +110,13 @@
             color: var(--text-muted);
         }
 
+        .time-badge {
+            color: var(--time-label-color);
+            font-weight: bold;
+            font-size: 0.8rem;
+            margin-left: 4px;
+        }
+
         input[type="text"], input[type="number"], select, textarea {
             width: 100%;
             padding: 0.7rem;
@@ -184,7 +192,6 @@
         }
 
         .alert-warning { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; border-left: 5px solid var(--warning-line); }
-        .alert-success { background-color: #dcfce7; color: #14532d; border: 1px solid #bbf7d0; font-size: 1.1rem; }
     </style>
 </head>
 <body>
@@ -197,10 +204,8 @@
     <h1>Registro Attività e Performance</h1>
     
     <div id="timeAlert" class="alert alert-warning">⚠️ <strong>Attenzione:</strong> Stai inviando il report oltre l'orario limite stabilito.</div>
-    <div id="successMessage" class="alert alert-success">✅ <strong>Report inviato con successo!</strong> Il riepilogo delle attività è stato inoltrato via email.</div>
 
-        <!-- Modulo collegato correttamente al tuo endpoint privato mnpqzzag -->
-    <form id="megaReportForm" action="https://formspree.io" method="POST">
+        <form id="megaReportForm" action="https://formspree.io" method="POST">
         
         <!-- INIZIO BLOCCO COORDINATORE -->
         <div class="section-card">
@@ -220,27 +225,27 @@
                 </div>
                 
                 <div class="form-group">
-                    <label>N. Visite Effettuate</label>
+                    <label>N. Visite Effettuate <span class="time-badge v-orario"></span></label>
                     <input type="number" name="Coordinatore_Visite" min="0" value="0" required>
                 </div>
                 
                 <div class="form-group">
-                    <label>N. Trattative Avviate</label>
+                    <label>N. Trattative Avviate <span class="time-badge v-orario"></span></label>
                     <input type="number" name="Coordinatore_Trattative" min="0" value="0" required>
                 </div>
                 
                 <div class="form-group">
-                    <label>N. Referenze Raccolte</label>
+                    <label>N. Referenze Raccolte <span class="time-badge v-orario"></span></label>
                     <input type="number" name="Coordinatore_Referenze" min="0" value="0" required>
                 </div>
                 
                 <div class="form-group">
-                    <label>N. PDP Business Firmati</label>
+                    <label>N. PDP Business Firmati <span class="time-badge v-orario"></span></label>
                     <input type="number" name="Coordinatore_PDP_Business" min="0" value="0" required>
                 </div>
                 
                 <div class="form-group">
-                    <label>N. PDP Residenziali Firmati</label>
+                    <label>N. PDP Residenziali Firmati <span class="time-badge v-orario"></span></label>
                     <input type="number" name="Coordinatore_PDP_Residenziali" min="0" value="0" required>
                 </div>
                 
@@ -265,6 +270,7 @@
 
     <script>
     let agenteCount = 0;
+    let stringaFasciaAttuale = '(Fascia 9:00 - 13:00)'; // Default iniziale
 
     function creaSlotAgente(index) {
         agenteCount++;
@@ -272,7 +278,6 @@
         card.className = 'section-card agent-card';
         card.id = 'agente_card_' + index;
         
-        // Struttura fissa senza caratteri di formattazione speciali che bloccano la chat
         let titoloSezione = '💼 Sales Account #' + index + ' <span style="font-weight:normal; font-size:0.8rem; color:#64748b;">(Opzionale)</span>';
         if (index > 3) {
             titoloSezione += ' <button type="button" class="btn btn-danger" onclick="rimuoviAgente(' + index + ')">Elimina</button>';
@@ -287,11 +292,11 @@
                     <label>Nome e Cognome Agente</label>
                     <input type="text" name="Agente_` + index + `_Nome" placeholder="Nome Sales Account">
                 </div>
-                <div class="form-group"><label>N. Visite</label><input type="number" name="Agente_` + index + `_Visite" min="0" value="0"></div>
-                <div class="form-group"><label>N. Trattative Avviate</label><input type="number" name="Agente_` + index + `_Trattative" min="0" value="0"></div>
-                <div class="form-group"><label>N. Referenze Raccolte</label><input type="number" name="Agente_` + index + `_Referenze" min="0" value="0"></div>
-                <div class="form-group"><label>N. PDP Business Firmati</label><input type="number" name="Agente_` + index + `_PDP_Business" min="0" value="0"></div>
-                <div class="form-group"><label>N. PDP Residenziali Firmati</label><input type="number" name="Agente_` + index + `_PDP_Residenziali" min="0" value="0"></div>
+                <div class="form-group"><label>N. Visite <span class="time-badge v-orario">` + stringaFasciaAttuale + `</span></label><input type="number" name="Agente_` + index + `_Visite" min="0" value="0"></div>
+                <div class="form-group"><label>N. Trattative Avviate <span class="time-badge v-orario">` + stringaFasciaAttuale + `</span></label><input type="number" name="Agente_` + index + `_Trattative" min="0" value="0"></div>
+                <div class="form-group"><label>N. Referenze Raccolte <span class="time-badge v-orario">` + stringaFasciaAttuale + `</span></label><input type="number" name="Agente_` + index + `_Referenze" min="0" value="0"></div>
+                <div class="form-group"><label>N. PDP Business Firmati <span class="time-badge v-orario">` + stringaFasciaAttuale + `</span></label><input type="number" name="Agente_` + index + `_PDP_Business" min="0" value="0"></div>
+                <div class="form-group"><label>N. PDP Residenziali Firmati <span class="time-badge v-orario">` + stringaFasciaAttuale + `</span></label><input type="number" name="Agente_` + index + `_PDP_Residenziali" min="0" value="0"></div>
                 <div class="form-group full-width"><label>ALTRO / NOTE</label><textarea name="Agente_` + index + `_Note" placeholder="Note o feedback per questo agente..."></textarea></div>
             </div>
         `;
@@ -303,18 +308,50 @@
         if(card) card.remove();
     }
 
+    function aggiornaEtichetteOrari(testoNuovo) {
+        stringaFasciaAttuale = testoNuovo;
+        const elementi = document.querySelectorAll('.v-orario');
+        elementi.forEach(function(el) {
+            el.innerText = testoNuovo;
+        });
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
         const container = document.getElementById("agentiContainer");
         const addBtn = document.getElementById("addAgentBtn");
         const finestra = document.getElementById("finestraOraria");
         const timeAlert = document.getElementById("timeAlert");
 
-        // 1. Carica i primi 3 agenti di base pronti da compilare
+        // 1. Rilevamento iniziale automatico orario di consegna e impostazione stringa ore
+        const ora = new Date().getHours();
+        if (ora < 14) {
+            finestra.value = "Pausa Pranzo (Entro le 14:00)";
+            stringaFasciaAttuale = "(Fascia 9:00 - 13:00)";
+        } else if (ora >= 14 && ora < 19) {
+            finestra.value = "Fine Giornata (Entro le 19:00)";
+            stringaFasciaAttuale = "(Fascia 14:00 - 18:00)";
+        } else {
+            finestra.value = "Fine Giornata (Entro le 19:00)";
+            stringaFasciaAttuale = "(Fascia 14:00 - 18:00)";
+            timeAlert.style.display = "block";
+        }
+
+        // 2. Carica i primi 3 agenti di base pronti da compilare con la fascia corretta
         for (let i = 1; i <= 3; i++) {
             container.appendChild(creaSlotAgente(i));
         }
+        aggiornaEtichetteOrari(stringaFasciaAttuale);
 
-        // 2. Tasto "+" per aggiungere infiniti agenti
+        // 3. Ascolta i cambi manuali del menu a tendina per cambiare i testi al volo
+        finestra.addEventListener("change", function() {
+            if (finestra.value.indexOf("Pausa Pranzo") !== -1) {
+                aggiornaEtichetteOrari("(Fascia 9:00 - 13:00)");
+            } else {
+                aggiornaEtichetteOrari("(Fascia 14:00 - 18:00)");
+            }
+        });
+
+        // 4. Tasto "+" per aggiungere agenti mantenendo la fascia selezionata
         addBtn.addEventListener("click", function() {
             let maxIndex = 0;
             for (let child of container.children) {
@@ -322,47 +359,14 @@
                 if (idNum > maxIndex) maxIndex = idNum;
             }
             container.appendChild(creaSlotAgente(maxIndex + 1));
+            aggiornaEtichetteOrari(stringaFasciaAttuale);
         });
 
-        // 3. Gestione Orari Turno Automatica
-        const ora = new Date().getHours();
-        if (ora < 14) {
-            finestra.value = "Pausa Pranzo (Entro le 14:00)";
-        } else if (ora >= 14 && ora < 19) {
-            finestra.value = "Fine Giornata (Entro le 19:00)";
-        } else {
-            finestra.value = "Fine Giornata (Entro le 19:00)";
-            timeAlert.style.display = "block";
-        }
-
-        // 4. Invio asincrono a Formspree senza ricaricare la pagina
-        document.getElementById("megaReportForm").addEventListener("submit", function(e) {
-            e.preventDefault();
-            const form = this;
+        // 5. Invio Nativo Standard
+        document.getElementById("megaReportForm").addEventListener("submit", function() {
             const btn = document.getElementById("submitBtn");
             btn.disabled = true;
             btn.innerText = "Invio in corso...";
-
-            fetch(form.action, {
-                method: "POST",
-                body: new FormData(form),
-                headers: { 'Accept': 'application/json' }
-            }).then(response => {
-                if (response.ok) {
-                    form.style.display = "none";
-                    timeAlert.style.display = "none";
-                    document.getElementById("successMessage").style.display = "block";
-                    window.scrollTo(0,0);
-                } else {
-                    alert("Errore nell'inoltro del report. Controlla la configurazione di Formspree.");
-                    btn.disabled = false;
-                    btn.innerText = "Invia Report";
-                }
-            }).catch(() => {
-                alert("Errore di rete. Riprova.");
-                btn.disabled = false;
-                btn.innerText = "Invia Report";
-            });
         });
     });
 </script>
