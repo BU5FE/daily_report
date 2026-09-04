@@ -205,7 +205,8 @@
     
     <div id="timeAlert" class="alert alert-warning">⚠️ <strong>Attenzione:</strong> Stai inviando il report oltre l'orario limite stabilito.</div>
 
-        <form id="megaReportForm" action="https://formspree.io" method="POST">
+        <!-- Metodo POST esplicito inserito per sbloccare Formspree -->
+    <form id="megaReportForm" action="https://formspree.io" method="POST">
         
         <!-- INIZIO BLOCCO COORDINATORE -->
         <div class="section-card">
@@ -362,7 +363,7 @@
             aggiornaEtichetteOrari(stringaFasciaAttuale);
         });
 
-        // 5. Invio Nativo Standard
+        // 5. Invio Nativo Standard Standard anti-errore
         document.getElementById("megaReportForm").addEventListener("submit", function() {
             const btn = document.getElementById("submitBtn");
             btn.disabled = true;
