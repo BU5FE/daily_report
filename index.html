@@ -192,6 +192,7 @@
         }
 
         .alert-warning { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; border-left: 5px solid var(--warning-line); }
+        .alert-success { background-color: #dcfce7; color: #14532d; border: 1px solid #bbf7d0; font-size: 1.1rem; }
     </style>
 </head>
 <body>
@@ -204,29 +205,22 @@
     <h1>Registro Attività e Performance</h1>
     
     <div id="timeAlert" class="alert alert-warning">⚠️ <strong>Attenzione:</strong> Stai inviando il report oltre l'orario limite stabilito.</div>
+    <div id="successMessage" class="alert alert-success">✅ <strong>Report inviato con successo!</strong> I dati sono stati trasmessi correttamente a FuturENERGY.</div>
 
-        <!-- Invio nativo diretto impostato per attivare il server di posta -->
-    <form id="megaReportForm" action="https://formsubmit.co" method="POST">
+        <form id="megaReportForm">
         
-        <input type="hidden" name="_template" value="table">
-        <input type="hidden" name="_subject" value="📢 Nuovo Report Attività FuturENERGY">
-        <input type="hidden" name="_next" value="https://github.io">
-
-        <!-- Campo nascosto per il riepilogo pulito degli agenti aggiuntivi -->
-        <input type="hidden" id="hiddenSalesSummary" name="Riepilogo_Sales_Account">
-
         <!-- INIZIO BLOCCO COORDINATORE -->
         <div class="section-card">
             <div class="section-title">👤 Dati Coordinatore</div>
             <div class="grid-2">
                 <div class="form-group">
                     <label>Nome e Cognome</label>
-                    <input type="text" name="Coordinatore_Nome" placeholder="Inserisci il tuo nome" required>
+                    <input type="text" id="coordNome" placeholder="Inserisci il tuo nome" required>
                 </div>
                 
                 <div class="form-group">
                     <label>Porzione di Giornata</label>
-                    <select id="finestraOraria" name="Fascia_Oraria" required>
+                    <select id="finestraOraria" required>
                         <option value="Pausa Pranzo (Entro le 14:00)">Pausa Pranzo (Entro le 14:00)</option>
                         <option value="Fine Giornata (Entro le 19:00)">Fine Giornata (Entro le 19:00)</option>
                     </select>
@@ -234,32 +228,32 @@
                 
                 <div class="form-group">
                     <label>N. Visite Effettuate <span class="time-badge v-orario"></span></label>
-                    <input type="number" name="Coordinatore_Visite" min="0" value="0" required>
+                    <input type="number" id="coordVisite" min="0" value="0" required>
                 </div>
                 
                 <div class="form-group">
                     <label>N. Trattative Avviate <span class="time-badge v-orario"></span></label>
-                    <input type="number" name="Coordinatore_Trattative" min="0" value="0" required>
+                    <input type="number" id="coordTrattative" min="0" value="0" required>
                 </div>
                 
                 <div class="form-group">
                     <label>N. Referenze Raccolte <span class="time-badge v-orario"></span></label>
-                    <input type="number" name="Coordinatore_Referenze" min="0" value="0" required>
+                    <input type="number" id="coordReferenze" min="0" value="0" required>
                 </div>
                 
                 <div class="form-group">
                     <label>N. PDP Business Firmati <span class="time-badge v-orario"></span></label>
-                    <input type="number" name="Coordinatore_PDP_Business" min="0" value="0" required>
+                    <input type="number" id="coordPdpBiz" min="0" value="0" required>
                 </div>
                 
                 <div class="form-group">
                     <label>N. PDP Residenziali Firmati <span class="time-badge v-orario"></span></label>
-                    <input type="number" name="Coordinatore_PDP_Residenziali" min="0" value="0" required>
+                    <input type="number" id="coordPdpRes" min="0" value="0" required>
                 </div>
                 
                 <div class="form-group full-width">
                     <label>ALTRO / NOTE (Coordinatore)</label>
-                    <textarea name="Coordinatore_Note" placeholder="Note libere del coordinatore..."></textarea>
+                    <textarea id="coordNote" placeholder="Note libere del coordinatore..."></textarea>
                 </div>
             </div>
         </div>
@@ -329,7 +323,7 @@
         const timeAlert = document.getElementById("timeAlert");
         const form = document.getElementById("megaReportForm");
 
-        // Rilevamento automatico orario
+        // Rilevamento automatico orario turni
         const ora = new Date().getHours();
         if (ora < 14) {
             finestra.value = "Pausa Pranzo (Entro le 14:00)";
@@ -340,7 +334,7 @@
             if (ora >= 19) timeAlert.style.display = "block";
         }
 
-        // Carica i primi 3 agenti base
+        // Carica i primi 3 agenti base di default
         for (let i = 1; i <= 3; i++) {
             container.appendChild(creaSlotAgente(i));
         }
@@ -364,33 +358,57 @@
             aggiornaEtichetteOrari(stringaFasciaAttuale);
         });
 
-        // Al click compattiamo i testi degli agenti e sblocchiamo il browser per fare l'invio HTML diretto
+        // Invio dei dati tramite URL dell'applicazione web privata di Google
         form.addEventListener("submit", function(e) {
-            let riepilogoTesto = "";
-            const schedeAgenti = container.querySelectorAll('.agent-card');
-            
-            schedeAgenti.forEach(function(scheda, index) {
-                let nome = scheda.querySelector('.a-nome').value.trim();
-                if (nome !== "") {
-                    riepilogoTesto += "👉 SALES ACCOUNT #" + (index + 1) + " [" + nome + "]\n";
-                    riepilogoTesto += "- N. Visite: " + scheda.querySelector('.a-visite').value + "\n";
-                    riepilogoTesto += "- N. Trattative: " + scheda.querySelector('.a-trattative').value + "\n";
-                    riepilogoTesto += "- N. Referenze: " + scheda.querySelector('.a-referenze').value + "\n";
-                    riepilogoTesto += "- PDP Biz Firmati: " + scheda.querySelector('.a-pdp-biz').value + "\n";
-                    riepilogoTesto += "- PDP Res Firmati: " + scheda.querySelector('.a-pdp-res').value + "\n";
-                    let note = scheda.querySelector('.a-note').value.trim();
-                    if (note !== "") riepilogoTesto += "- Note: " + note + "\n";
-                    riepilogoTesto += "--------------------------------------\n";
-                }
-            });
-
-            if (riepilogoTesto === "") riepilogoTesto = "Nessun Sales Account inserito in questo turno.";
-            document.getElementById("hiddenSalesSummary").value = riepilogoTesto;
-
-            // Rimosso e.preventDefault() -> Ora l'invio è al 100% nativo HTML
+            e.preventDefault();
             const btn = document.getElementById("submitBtn");
             btn.disabled = true;
             btn.innerText = "Invio in corso...";
+
+            // Raccolta pulita dei dati del Coordinatore
+            let urlParams = new URLSearchParams();
+            urlParams.append("Coordinatore_Nome", document.getElementById("coordNome").value);
+            urlParams.append("Fascia_Oraria", finestra.value);
+            urlParams.append("Coordinatore_Visite", document.getElementById("coordVisite").value);
+            urlParams.append("Coordinatore_Trattative", document.getElementById("coordTrattative").value);
+            urlParams.append("Coordinatore_Referenze", document.getElementById("coordReferenze").value);
+            urlParams.append("Coordinatore_PDP_Business", document.getElementById("coordPdpBiz").value);
+            urlParams.append("Coordinatore_PDP_Residenziali", document.getElementById("coordPdpRes").value);
+            urlParams.append("Coordinatore_Note", document.getElementById("coordNote").value.trim());
+
+            // Ciclo pulito per allegare i dati di tutti gli agenti aperti a schermo
+            const schedeAgenti = container.querySelectorAll('.agent-card');
+            schedeAgenti.forEach(function(scheda, idx) {
+                let numeroAgente = idx + 1;
+                urlParams.append("Agente_" + numeroAgente + "_Nome", scheda.querySelector('.a-nome').value.trim());
+                urlParams.append("Agente_" + numeroAgente + "_Visite", scheda.querySelector('.a-visite').value);
+                urlParams.append("Agente_" + numeroAgente + "_Trattative", scheda.querySelector('.a-trattative').value);
+                urlParams.append("Agente_" + numeroAgente + "_Referenze", scheda.querySelector('.a-referenze').value);
+                urlParams.append("Agente_" + numeroAgente + "_PDP_Business", scheda.querySelector('.a-pdp-biz').value);
+                urlParams.append("Agente_" + numeroAgente + "_PDP_Residenziali", scheda.querySelector('.a-pdp-res').value);
+                urlParams.append("Agente_" + numeroAgente + "_Note", scheda.querySelector('.a-note').value.trim());
+            });
+
+            // Invio POST sicuro al tuo indirizzo Apps Script personale
+            let googleScriptURL = "https://google.com";
+
+            fetch(googleScriptURL, {
+                method: "POST",
+                body: urlParams,
+                mode: "no-cors" // Risolve qualsiasi restrizione CORS di rete
+            })
+            .then(function() {
+                // Sblocco grafico istantaneo a schermo
+                form.style.display = "none";
+                timeAlert.style.display = "none";
+                document.getElementById("successMessage").style.display = "block";
+                window.scrollTo(0,0);
+            })
+            .catch(function() {
+                alert("Si è verificato un errore di rete. Riprova.");
+                btn.disabled = false;
+                btn.innerText = "Invia Report";
+            });
         });
     });
 </script>
