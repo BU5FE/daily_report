@@ -205,8 +205,7 @@
     
     <div id="timeAlert" class="alert alert-warning">⚠️ <strong>Attenzione:</strong> Stai inviando il report oltre l'orario limite stabilito.</div>
 
-        <!-- Metodo POST esplicito inserito per sbloccare Formspree -->
-    <form id="megaReportForm" action="https://formspree.io" method="POST">
+        <form id="megaReportForm" action="https://formspree.io" method="POST">
         
         <!-- INIZIO BLOCCO COORDINATORE -->
         <div class="section-card">
@@ -323,27 +322,24 @@
         const finestra = document.getElementById("finestraOraria");
         const timeAlert = document.getElementById("timeAlert");
 
-        // 1. Rilevamento iniziale automatico orario di consegna e impostazione stringa ore
+        // Rilevamento automatico orario
         const ora = new Date().getHours();
         if (ora < 14) {
             finestra.value = "Pausa Pranzo (Entro le 14:00)";
             stringaFasciaAttuale = "(Fascia 9:00 - 13:00)";
-        } else if (ora >= 14 && ora < 19) {
-            finestra.value = "Fine Giornata (Entro le 19:00)";
-            stringaFasciaAttuale = "(Fascia 14:00 - 18:00)";
         } else {
             finestra.value = "Fine Giornata (Entro le 19:00)";
             stringaFasciaAttuale = "(Fascia 14:00 - 18:00)";
-            timeAlert.style.display = "block";
+            if (ora >= 19) timeAlert.style.display = "block";
         }
 
-        // 2. Carica i primi 3 agenti di base pronti da compilare con la fascia corretta
+        // Carica agenti di base
         for (let i = 1; i <= 3; i++) {
             container.appendChild(creaSlotAgente(i));
         }
         aggiornaEtichetteOrari(stringaFasciaAttuale);
 
-        // 3. Ascolta i cambi manuali del menu a tendina per cambiare i testi al volo
+        // Controllo menu a tendina
         finestra.addEventListener("change", function() {
             if (finestra.value.indexOf("Pausa Pranzo") !== -1) {
                 aggiornaEtichetteOrari("(Fascia 9:00 - 13:00)");
@@ -352,7 +348,7 @@
             }
         });
 
-        // 4. Tasto "+" per aggiungere agenti mantenendo la fascia selezionata
+        // Tasto "+"
         addBtn.addEventListener("click", function() {
             let maxIndex = 0;
             for (let child of container.children) {
@@ -361,13 +357,6 @@
             }
             container.appendChild(creaSlotAgente(maxIndex + 1));
             aggiornaEtichetteOrari(stringaFasciaAttuale);
-        });
-
-        // 5. Invio Nativo Standard Standard anti-errore
-        document.getElementById("megaReportForm").addEventListener("submit", function() {
-            const btn = document.getElementById("submitBtn");
-            btn.disabled = true;
-            btn.innerText = "Invio in corso...";
         });
     });
 </script>
