@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FuturENERGY - Report Attività Commerciale</title>
+    <style>
+        :root {
+            /* Palette Colori ufficiale FuturENERGY */
+            --primary: #047857;         /* Verde Smeraldo principale */
+            --primary-hover: #065f46;   /* Verde scuro per i passaggi del mouse */
+            --bg: #f0fdf4;              /* Sfondo della pagina verde chiarissimo */
+            --card: #ffffff;            /* Sfondo dei blocchi (Bianco) */
+            --text: #111827;            /* Testo scuro ad alta leggibilità */
+            --text-muted: #4b5563;      /* Testo secondario */
+            --border: #bbf7d0;          /* Bordi sfumati in verde chiaro */
+            --accent-coordinatore: #16a34a; /* Verde specifico per il coordinatore */
+            --warning-line: #dc2626;    /* Linea rossa di accento (presa dal logo) per i ritardi */
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            padding: 2rem 1rem;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .logo-container img {
+            max-width: 240px;
+            height: auto;
+            display: inline-block;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            color: var(--primary-hover);
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 2rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .section-card {
+            background: var(--card);
+            padding: 1.75rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(4, 120, 87, 0.05);
+            margin-bottom: 1.5rem;
+            border-top: 5px solid var(--accent-coordinatore);
+        }
+
+        .section-card.agent-card {
+            border-top-color: var(--primary);
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 1.25rem;
+            color: var(--primary-hover);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 480px) {
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        @media (max-width: 480px) {
+            .form-group.full-width { grid-column: span 1; }
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        input[type="text"], input[type="number"], select, textarea {
+            width: 100%;
+            padding: 0.7rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 0.95rem;
+            font-family: inherit;
+            background-color: #fafafa;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.8rem 1.2rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 2px 4px rgba(5, 150, 105, 0.2);
+        }
+
+        .btn-primary:hover { background-color: var(--primary-hover); }
+
+        .btn-secondary {
+            background-color: #e2e8f0;
+            color: #475569;
+            margin-bottom: 1.5rem;
+            border: 1px solid #cbd5e1;
+        }
+
+        .btn-secondary:hover { background-color: #cbd5e1; }
+
+        .btn-danger {
+            background-color: #fee2e2;
+            color: #991b1b;
+            font-size: 0.8rem;
+            padding: 0.3rem 0.6rem;
+            width: auto;
+            border-radius: 4px;
+        }
+        
+        .btn-danger:hover { background-color: #fca5a5; }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            display: none;
+            text-align: center;
+        }
+
+        .alert-warning { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; border-left: 5px solid var(--warning-line); }
+        .alert-success { background-color: #dcfce7; color: #14532d; border: 1px solid #bbf7d0; font-size: 1.1rem; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="logo-container">
+        <!-- Ricordati di caricare il file immagine e chiamarlo logo.png su GitHub -->
+        <img src="logo.png" alt="FuturENERGY Energia Italiana">
+    </div>
+
+    <h1>Registro Attività e Performance</h1>
+    
+    <div id="timeAlert" class="alert alert-warning">⚠️ <strong>Attenzione:</strong> Stai inviando il report oltre l'orario limite stabilito.</div>
+    <div id="successMessage" class="alert alert-success">✅ <strong>Report inviato con successo!</strong> I dati sono stati trasmessi a FuturENERGY.</div>
+
+    <!-- Sostituisci l'action qui sotto con l'endpoint reale del tuo modulo Google -->
+    <form id="megaReportForm" action="https://google.com" method="POST">
+
+              <!-- INIZIO BLOCCO COORDINATORE -->
+        <div class="section-card">
+            <div class="section-title">👤 Dati Coordinatore</div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Nome e Cognome</label>
+                    <input type="text" name="entry.COORD_NOME" placeholder="Inserisci il tuo nome" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Porzione di Giornata</label>
+                    <select id="finestraOraria" name="entry.FINESTRA" required>
+                        <option value="Pausa Pranzo (Entro le 14:00)">Pausa Pranzo (Entro le 14:00)</option>
+                        <option value="Fine Giornata (Entro le 19:00)">Fine Giornata (Entro le 19:00)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>N. Visite Effettuate</label>
+                    <input type="number" name="entry.COORD_VISITE" min="0" value="0" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>N. Trattative Avviate</label>
+                    <input type="number" name="entry.COORD_TRATTATIVE" min="0" value="0" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>N. Referenze Raccolte</label>
+                    <input type="number" name="entry.COORD_REFERENZE" min="0" value="0" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>N. PDP Business Firmati</label>
+                    <input type="number" name="entry.COORD_PDP_BIZ" min="0" value="0" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>N. PDP Residenziali Firmati</label>
+                    <input type="number" name="entry.COORD_PDP_RES" min="0" value="0" required>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label>ALTRO / NOTE (Coordinatore)</label>
+                    <textarea name="entry.COORD_NOTE" placeholder="Note libere del coordinatore..."></textarea>
+                </div>
+            </div>
+        </div>
+        <!-- FINE BLOCCO COORDINATORE -->
+
+        <!-- Contenitore dinamico gestito da JS per i Sales Account -->
+        <div id="agentiContainer"></div>
+
+        <div style="margin-bottom: 2rem;">
+            <button type="button" id="addAgentBtn" class="btn btn-secondary">➕ Aggiungi altro Sales Account</button>
+        </div>
+
+        <button type="submit" id="submitBtn" class="btn btn-primary">Invia Report Totale</button>
+    </form>
+</div>
+
+  <script>
+    let agenteCount = 0;
+
+    // Funzione dinamica per generare gli slot dei Sales Account (i primi 3 opzionali di base)
+    function creaSlotAgente(index) {
+        agenteCount++;
+        const card = document.createElement('div');
+        card.className = 'section-card agent-card';
+        card.id = `agente_card_${index}`;
+        
+        card.innerHTML = `
+            <div class="section-title">
+                💼 Sales Account #${index} <span style="font-weight:normal; font-size:0.8rem; color:#64748b;">(Opzionale)</span>
+                \${index > 3 ? `<button type="button" class="btn btn-danger" onclick="rimuoviAgente(\${index})">Elimina</button>` : ''}
+            </div>
+            <div class="grid-2">
+                <div class="form-group full-width">
+                    <label>Nome e Cognome Agente</label>
+                    <input type="text" name="entry.AGENTE_\${index}_NOME" placeholder="Nome Sales Account">
+                </div>
+                <div class="form-group"><label>N. Visite</label><input type="number" name="entry.AGENTE_\${index}_VISITE" min="0" value="0"></div>
+                <div class="form-group"><label>N. Trattative Avviate</label><input type="number" name="entry.AGENTE_\${index}_TRATTATIVE" min="0" value="0"></div>
+                <div class="form-group"><label>N. Referenze Raccolte</label><input type="number" name="entry.AGENTE_\${index}_REFERENZE" min="0" value="0"></div>
+                <div class="form-group"><label>N. PDP Business Firmati</label><input type="number" name="entry.AGENTE_\${index}_PDP_BIZ" min="0" value="0"></div>
+                <div class="form-group"><label>N. PDP Residenziali Firmati</label><input type="number" name="entry.AGENTE_\${index}_PDP_RES" min="0" value="0"></div>
+                <div class="form-group full-width"><label>ALTRO / NOTE</label><textarea name="entry.AGENTE_\${index}_NOTE" placeholder="Note, criticità o feedback per questo agente..."></textarea></div>
+            </div>
+        `;
+        return card;
+    }
+
+    function rimuoviAgente(index) {
+        const card = document.getElementById(`agente_card_${index}`);
+        if(card) card.remove();
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const container = document.getElementById("agentiContainer");
+        const addBtn = document.getElementById("addAgentBtn");
+        const finestra = document.getElementById("finestraOraria");
+        const timeAlert = document.getElementById("timeAlert");
+
+        // 1. Inizializzazione automatica dei primi 3 slot agenti richiesti
+        for (let i = 1; i <= 3; i++) {
+            container.appendChild(creaSlotAgente(i));
+        }
+
+        // 2. Logica del pulsante "+" per aggiungerne altri
+        addBtn.addEventListener("click", function() {
+            const successivi = container.children.length + 1;
+            container.appendChild(creaSlotAgente(successivi));
+        });
+
+        // 3. Gestione automatica oraria dei turni di consegna
+        const ora = new Date().getHours();
+        if (ora < 14) {
+            finestra.value = "Pausa Pranzo (Entro le 14:00)";
+        } else if (ora >= 14 && ora < 19) {
+            finestra.value = "Fine Giornata (Entro le 19:00)";
+        } else {
+            finestra.value = "Fine Giornata (Entro le 19:00)";
+            timeAlert.style.display = "block"; // Mostra banner ritardo dopo le 19:00
+        }
+
+        // 4. Invio asincrono Fetch (No-CORS) per bloccare i redirect esterni di Google
+        document.getElementById("megaReportForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            const form = this;
+            const btn = document.getElementById("submitBtn");
+            btn.disabled = true;
+            btn.innerText = "Invio in corso...";
+
+            fetch(form.action, {
+                method: "POST",
+                body: new FormData(form),
+                mode: "no-cors"
+            }).then(() => {
+                form.style.display = "none";
+                timeAlert.style.display = "none";
+                document.getElementById("successMessage").style.display = "block";
+                window.scrollTo(0,0);
+            }).catch(() => {
+                alert("Si è verificato un errore di rete. Riprova.");
+                btn.disabled = false;
+                btn.innerText = "Invia Report Totale";
+            });
+        });
+    });
+</script>
+</body>
+</html>
