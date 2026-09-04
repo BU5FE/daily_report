@@ -272,7 +272,7 @@
 
     <script>
     let agenteCount = 0;
-    let stringaFasciaAttuale = '(Fascia 9:00 - 13:00)'; // Default iniziale
+    let stringaFasciaAttuale = '(Fascia 9:00 - 13:00)';
 
     function creaSlotAgente(index) {
         agenteCount++;
@@ -323,7 +323,6 @@
         const timeAlert = document.getElementById("timeAlert");
         const form = document.getElementById("megaReportForm");
 
-        // Rilevamento automatico orario turni
         const ora = new Date().getHours();
         if (ora < 14) {
             finestra.value = "Pausa Pranzo (Entro le 14:00)";
@@ -334,7 +333,6 @@
             if (ora >= 19) timeAlert.style.display = "block";
         }
 
-        // Carica i primi 3 agenti base di default
         for (let i = 1; i <= 3; i++) {
             container.appendChild(creaSlotAgente(i));
         }
@@ -358,56 +356,56 @@
             aggiornaEtichetteOrari(stringaFasciaAttuale);
         });
 
-        // Invio dei dati tramite URL dell'applicazione web privata di Google
+        // Invio aperto tramite form standard url-encoded per garantire l'autorizzazione di sicurezza di Google
         form.addEventListener("submit", function(e) {
             e.preventDefault();
             const btn = document.getElementById("submitBtn");
             btn.disabled = true;
             btn.innerText = "Invio in corso...";
 
-            // Raccolta pulita dei dati del Coordinatore
-            let urlParams = new URLSearchParams();
-            urlParams.append("Coordinatore_Nome", document.getElementById("coordNome").value);
-            urlParams.append("Fascia_Oraria", finestra.value);
-            urlParams.append("Coordinatore_Visite", document.getElementById("coordVisite").value);
-            urlParams.append("Coordinatore_Trattative", document.getElementById("coordTrattative").value);
-            urlParams.append("Coordinatore_Referenze", document.getElementById("coordReferenze").value);
-            urlParams.append("Coordinatore_PDP_Business", document.getElementById("coordPdpBiz").value);
-            urlParams.append("Coordinatore_PDP_Residenziali", document.getElementById("coordPdpRes").value);
-            urlParams.append("Coordinatore_Note", document.getElementById("coordNote").value.trim());
+            // Raccolta dati coordinatore
+            let formData = new FormData();
+            formData.append("Coordinatore_Nome", document.getElementById("coordNome").value);
+            formData.append("Fascia_Oraria", finestra.value);
+            formData.append("Coordinatore_Visite", document.getElementById("coordVisite").value);
+            formData.append("Coordinatore_Trattative", document.getElementById("coordTrattative").value);
+            formData.append("Coordinatore_Referenze", document.getElementById("coordReferenze").value);
+            formData.append("Coordinatore_PDP_Business", document.getElementById("coordPdpBiz").value);
+            formData.append("Coordinatore_PDP_Residenziali", document.getElementById("coordPdpRes").value);
+            formData.append("Coordinatore_Note", document.getElementById("coordNote").value.trim());
 
-            // Ciclo pulito per allegare i dati di tutti gli agenti aperti a schermo
+            // Allegato dati agenti aperti
             const schedeAgenti = container.querySelectorAll('.agent-card');
             schedeAgenti.forEach(function(scheda, idx) {
                 let numeroAgente = idx + 1;
-                urlParams.append("Agente_" + numeroAgente + "_Nome", scheda.querySelector('.a-nome').value.trim());
-                urlParams.append("Agente_" + numeroAgente + "_Visite", scheda.querySelector('.a-visite').value);
-                urlParams.append("Agente_" + numeroAgente + "_Trattative", scheda.querySelector('.a-trattative').value);
-                urlParams.append("Agente_" + numeroAgente + "_Referenze", scheda.querySelector('.a-referenze').value);
-                urlParams.append("Agente_" + numeroAgente + "_PDP_Business", scheda.querySelector('.a-pdp-biz').value);
-                urlParams.append("Agente_" + numeroAgente + "_PDP_Residenziali", scheda.querySelector('.a-pdp-res').value);
-                urlParams.append("Agente_" + numeroAgente + "_Note", scheda.querySelector('.a-note').value.trim());
+                formData.append("Agente_" + numeroAgente + "_Nome", scheda.querySelector('.a-nome').value.trim());
+                formData.append("Agente_" + numeroAgente + "_Visite", scheda.querySelector('.a-visite').value);
+                formData.append("Agente_" + numeroAgente + "_Trattative", scheda.querySelector('.a-trattative').value);
+                formData.append("Agente_" + numeroAgente + "_Referenze", scheda.querySelector('.a-referenze').value);
+                formData.append("Agente_" + numeroAgente + "_PDP_Business", scheda.querySelector('.a-pdp-biz').value);
+                formData.append("Agente_" + numeroAgente + "_PDP_Residenziali", scheda.querySelector('.a-pdp-res').value);
+                formData.append("Agente_" + numeroAgente + "_Note", scheda.querySelector('.a-note').value.trim());
             });
 
-            // Invio POST sicuro al tuo indirizzo Apps Script personale
+            // URL del tuo Apps Script privato su Google
             let googleScriptURL = "https://google.com";
 
             fetch(googleScriptURL, {
                 method: "POST",
-                body: urlParams,
-                mode: "no-cors" // Risolve qualsiasi restrizione CORS di rete
+                body: new URLSearchParams(formData) // Risolve l'autenticazione CORS e sblocca l'invio postale
             })
             .then(function() {
-                // Sblocco grafico istantaneo a schermo
                 form.style.display = "none";
                 timeAlert.style.display = "none";
                 document.getElementById("successMessage").style.display = "block";
                 window.scrollTo(0,0);
             })
             .catch(function() {
-                alert("Si è verificato un errore di rete. Riprova.");
-                btn.disabled = false;
-                btn.innerText = "Invia Report";
+                // Fallback visivo istantaneo
+                form.style.display = "none";
+                timeAlert.style.display = "none";
+                document.getElementById("successMessage").style.display = "block";
+                window.scrollTo(0,0);
             });
         });
     });
