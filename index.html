@@ -205,14 +205,16 @@
     
     <div id="timeAlert" class="alert alert-warning">⚠️ <strong>Attenzione:</strong> Stai inviando il report oltre l'orario limite stabilito.</div>
 
-        <!-- Configurazione con invio standard e reindirizzamento al file successo.html appena creato -->
-    <form id="megaReportForm" action="https://formsubmit.co" method="POST">
+        <form id="megaReportForm" action="https://formsubmit.co" method="POST">
         
+        <!-- Impostazioni FormSubmit per l'invio pulito -->
         <input type="hidden" name="_captcha" value="false">
         <input type="hidden" name="_template" value="table">
         <input type="hidden" name="_subject" value="📢 Nuovo Report Attività FuturENERGY">
-        <!-- Dice al server di riportare l'utente sulla tua pagina di successo su GitHub Pages -->
         <input type="hidden" name="_next" value="https://github.io">
+
+        <!-- Campo nascosto che conterrà tutto il riepilogo testuale degli agenti in modo pulito -->
+        <input type="hidden" id="hiddenSalesSummary" name="Riepilogo_Sales_Account">
 
         <!-- INIZIO BLOCCO COORDINATORE -->
         <div class="section-card">
@@ -264,7 +266,7 @@
         </div>
         <!-- FINE BLOCCO COORDINATORE -->
 
-        <!-- Contenitore dinamico gestito da JS per i Sales Account -->
+        <!-- Contenitore dinamico per i Sales Account -->
         <div id="agentiContainer"></div>
 
         <div style="margin-bottom: 2rem;">
@@ -285,26 +287,24 @@
         card.className = 'section-card agent-card';
         card.id = 'agente_card_' + index;
         
-        let titoloSezione = '💼 Sales Account #' + index + ' <span style="font-weight:normal; font-size:0.8rem; color:#64748b;">(Opzionale)</span>';
+        let titoloSezione = '💼 Sales Account #' + index + ' (Opzionale)';
         if (index > 3) {
             titoloSezione += ' <button type="button" class="btn btn-danger" onclick="rimuoviAgente(' + index + ')">Elimina</button>';
         }
         
         card.innerHTML = `
-            <div class="section-title">
-                ` + titoloSezione + `
-            </div>
+            <div class="section-title">` + titoloSezione + `</div>
             <div class="grid-2">
                 <div class="form-group full-width">
                     <label>Nome e Cognome Agente</label>
-                    <input type="text" name="Agente_` + index + `_Nome" placeholder="Nome Sales Account">
+                    <input type="text" class="a-nome" placeholder="Nome Sales Account">
                 </div>
-                <div class="form-group"><label>N. Visite <span class="time-badge v-orario">` + stringaFasciaAttuale + `</span></label><input type="number" name="Agente_` + index + `_Visite" min="0" value="0"></div>
-                <div class="form-group"><label>N. Trattative Avviate <span class="time-badge v-orario">` + stringaFasciaAttuale + `</span></label><input type="number" name="Agente_` + index + `_Trattative" min="0" value="0"></div>
-                <div class="form-group"><label>N. Referenze Raccolte <span class="time-badge v-orario">` + stringaFasciaAttuale + `</span></label><input type="number" name="Agente_` + index + `_Referenze" min="0" value="0"></div>
-                <div class="form-group"><label>N. PDP Business Firmati <span class="time-badge v-orario">` + stringaFasciaAttuale + `</span></label><input type="number" name="Agente_` + index + `_PDP_Business" min="0" value="0"></div>
-                <div class="form-group"><label>N. PDP Residenziali Firmati <span class="time-badge v-orario">` + stringaFasciaAttuale + `</span></label><input type="number" name="Agente_` + index + `_PDP_Residenziali" min="0" value="0"></div>
-                <div class="form-group full-width"><label>ALTRO / NOTE</label><textarea name="Agente_` + index + `_Note" placeholder="Note o feedback per questo agente..."></textarea></div>
+                <div class="form-group"><label>N. Visite <span class="time-badge v-orario">` + stringaFasciaAttuale + `</span></label><input type="number" class="a-visite" min="0" value="0"></div>
+                <div class="form-group"><label>N. Trattative Avviate <span class="time-badge v-orario">` + stringaFasciaAttuale + `</span></label><input type="number" class="a-trattative" min="0" value="0"></div>
+                <div class="form-group"><label>N. Referenze Raccolte <span class="time-badge v-orario">` + stringaFasciaAttuale + `</span></label><input type="number" class="a-referenze" min="0" value="0"></div>
+                <div class="form-group"><label>N. PDP Business Firmati <span class="time-badge v-orario">` + stringaFasciaAttuale + `</span></label><input type="number" class="a-pdp-biz" min="0" value="0"></div>
+                <div class="form-group"><label>N. PDP Residenziali Firmati <span class="time-badge v-orario">` + stringaFasciaAttuale + `</span></label><input type="number" class="a-pdp-res" min="0" value="0"></div>
+                <div class="form-group full-width"><label>ALTRO / NOTE</label><textarea class="a-note" placeholder="Note o feedback per questo agente..."></textarea></div>
             </div>
         `;
         return card;
@@ -341,7 +341,7 @@
             if (ora >= 19) timeAlert.style.display = "block";
         }
 
-        // Carica i primi 3 agenti di base
+        // Carica i primi 3 agenti base
         for (let i = 1; i <= 3; i++) {
             container.appendChild(creaSlotAgente(i));
         }
@@ -365,8 +365,30 @@
             aggiornaEtichetteOrari(stringaFasciaAttuale);
         });
 
-        // Rimosso il blocco AJAX Fetch. Ora esegue l'invio standard nativo sicuro al 100%
-        form.addEventListener("submit", function() {
+        // Prima dell'invio compattiamo gli agenti per evitare blocchi del server
+        form.addEventListener("submit", function(e) {
+            let riepilogoTesto = "";
+            const schedeAgenti = container.querySelectorAll('.agent-card');
+            
+            schedeAgenti.forEach(function(scheda, index) {
+                let nome = scheda.querySelector('.a-nome').value.trim();
+                // Se l'agente ha un nome inserito, lo salviamo nel blocco email
+                if (nome !== "") {
+                    riepilogoTesto += "👉 SALES ACCOUNT #" + (index + 1) + " [" + nome + "]\n";
+                    riepilogoTesto += "- N. Visite: " + scheda.querySelector('.a-visite').value + "\n";
+                    riepilogoTesto += "- N. Trattative: " + scheda.querySelector('.a-trattative').value + "\n";
+                    riepilogoTesto += "- N. Referenze: " + scheda.querySelector('.a-referenze').value + "\n";
+                    riepilogoTesto += "- PDP Biz Firmati: " + scheda.querySelector('.a-pdp-biz').value + "\n";
+                    riepilogoTesto += "- PDP Res Firmati: " + scheda.querySelector('.a-pdp-res').value + "\n";
+                    let note = scheda.querySelector('.a-note').value.trim();
+                    if (note !== "") riepilogoTesto += "- Note: " + note + "\n";
+                    riepilogoTesto += "--------------------------------------\n";
+                }
+            });
+
+            if (riepilogoTesto === "") riepilogoTesto = "Nessun Sales Account inserito in questo turno.";
+            document.getElementById("hiddenSalesSummary").value = riepilogoTesto;
+
             const btn = document.getElementById("submitBtn");
             btn.disabled = true;
             btn.innerText = "Invio in corso...";
