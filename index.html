@@ -192,6 +192,7 @@
         }
 
         .alert-warning { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; border-left: 5px solid var(--warning-line); }
+        .alert-success { background-color: #dcfce7; color: #14532d; border: 1px solid #bbf7d0; font-size: 1.1rem; }
     </style>
 </head>
 <body>
@@ -204,8 +205,9 @@
     <h1>Registro Attività e Performance</h1>
     
     <div id="timeAlert" class="alert alert-warning">⚠️ <strong>Attenzione:</strong> Stai inviando il report oltre l'orario limite stabilito.</div>
+    <div id="successMessage" class="alert alert-success">✅ <strong>Report inviato con successo!</strong> I dati sono stati registrati e trasmessi.</div>
 
-        <form id="megaReportForm" action="https://formspree.io" method="POST">
+        <form id="megaReportForm">
         
         <!-- INIZIO BLOCCO COORDINATORE -->
         <div class="section-card">
@@ -321,6 +323,7 @@
         const addBtn = document.getElementById("addAgentBtn");
         const finestra = document.getElementById("finestraOraria");
         const timeAlert = document.getElementById("timeAlert");
+        const form = document.getElementById("megaReportForm");
 
         // Rilevamento automatico orario
         const ora = new Date().getHours();
@@ -339,7 +342,6 @@
         }
         aggiornaEtichetteOrari(stringaFasciaAttuale);
 
-        // Controllo menu a tendina
         finestra.addEventListener("change", function() {
             if (finestra.value.indexOf("Pausa Pranzo") !== -1) {
                 aggiornaEtichetteOrari("(Fascia 9:00 - 13:00)");
@@ -348,7 +350,6 @@
             }
         });
 
-        // Tasto "+"
         addBtn.addEventListener("click", function() {
             let maxIndex = 0;
             for (let child of container.children) {
@@ -357,6 +358,38 @@
             }
             container.appendChild(creaSlotAgente(maxIndex + 1));
             aggiornaEtichetteOrari(stringaFasciaAttuale);
+        });
+
+        // Forza invio POST JavaScript sbloccando Formspree a prescindere dalla cache HTML
+        form.addEventListener("submit", function(e) {
+            e.preventDefault();
+            const btn = document.getElementById("submitBtn");
+            btn.disabled = true;
+            btn.innerText = "Invio in corso...";
+
+            // Chiamata AJAX con metodo POST esplicito e gestione JSON
+            fetch("https://formspree.io", {
+                method: "POST",
+                body: new FormData(form),
+                headers: { 'Accept': 'application/json' }
+            })
+            .then(function(response) {
+                if (response.ok) {
+                    form.style.display = "none";
+                    timeAlert.style.display = "none";
+                    document.getElementById("successMessage").style.display = "block";
+                    window.scrollTo(0,0);
+                } else {
+                    alert("Si è verificato un problema di configurazione sul server di posta. Verifica l'ID.");
+                    btn.disabled = false;
+                    btn.innerText = "Invia Report";
+                }
+            })
+            .catch(function() {
+                alert("Errore di connessione. Riprova.");
+                btn.disabled = false;
+                btn.innerText = "Invia Report";
+            });
         });
     });
 </script>
