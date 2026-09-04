@@ -205,15 +205,14 @@
     
     <div id="timeAlert" class="alert alert-warning">⚠️ <strong>Attenzione:</strong> Stai inviando il report oltre l'orario limite stabilito.</div>
 
-        <form id="megaReportForm" action="https://formsubmit.co" method="POST">
+        <!-- Invio nativo diretto impostato per attivare il server di posta -->
+    <form id="megaReportForm" action="https://formsubmit.co" method="POST">
         
-        <!-- Impostazioni FormSubmit per l'invio pulito -->
-        <input type="hidden" name="_captcha" value="false">
         <input type="hidden" name="_template" value="table">
         <input type="hidden" name="_subject" value="📢 Nuovo Report Attività FuturENERGY">
         <input type="hidden" name="_next" value="https://github.io">
 
-        <!-- Campo nascosto che conterrà tutto il riepilogo testuale degli agenti in modo pulito -->
+        <!-- Campo nascosto per il riepilogo pulito degli agenti aggiuntivi -->
         <input type="hidden" id="hiddenSalesSummary" name="Riepilogo_Sales_Account">
 
         <!-- INIZIO BLOCCO COORDINATORE -->
@@ -365,14 +364,13 @@
             aggiornaEtichetteOrari(stringaFasciaAttuale);
         });
 
-        // Prima dell'invio compattiamo gli agenti per evitare blocchi del server
+        // Al click compattiamo i testi degli agenti e sblocchiamo il browser per fare l'invio HTML diretto
         form.addEventListener("submit", function(e) {
             let riepilogoTesto = "";
             const schedeAgenti = container.querySelectorAll('.agent-card');
             
             schedeAgenti.forEach(function(scheda, index) {
                 let nome = scheda.querySelector('.a-nome').value.trim();
-                // Se l'agente ha un nome inserito, lo salviamo nel blocco email
                 if (nome !== "") {
                     riepilogoTesto += "👉 SALES ACCOUNT #" + (index + 1) + " [" + nome + "]\n";
                     riepilogoTesto += "- N. Visite: " + scheda.querySelector('.a-visite').value + "\n";
@@ -389,6 +387,7 @@
             if (riepilogoTesto === "") riepilogoTesto = "Nessun Sales Account inserito in questo turno.";
             document.getElementById("hiddenSalesSummary").value = riepilogoTesto;
 
+            // Rimosso e.preventDefault() -> Ora l'invio è al 100% nativo HTML
             const btn = document.getElementById("submitBtn");
             btn.disabled = true;
             btn.innerText = "Invio in corso...";
