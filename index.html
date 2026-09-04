@@ -205,10 +205,16 @@
     <h1>Registro Attività e Performance</h1>
     
     <div id="timeAlert" class="alert alert-warning">⚠️ <strong>Attenzione:</strong> Stai inviando il report oltre l'orario limite stabilito.</div>
-    <div id="successMessage" class="alert alert-success">✅ <strong>Report inviato con successo!</strong> I dati sono stati registrati e trasmessi.</div>
+    <div id="successMessage" class="alert alert-success">✅ <strong>Report inviato con successo!</strong> Il riepilogo delle attività è stato inoltrato correttamente.</div>
 
-        <form id="megaReportForm">
+        <!-- Invio diretto all'email aziendale tramite l'infrastruttura sicura FormSubmit -->
+    <form id="megaReportForm" action="https://formsubmit.co" method="POST">
         
+        <!-- Impostazioni interne di FormSubmit per rimuovere la pubblicità ed avere una bella grafica nell'email -->
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_template" value="table">
+        <input type="hidden" name="_subject" value="📢 Nuovo Report Attività FuturENERGY">
+
         <!-- INIZIO BLOCCO COORDINATORE -->
         <div class="section-card">
             <div class="section-title">👤 Dati Coordinatore</div>
@@ -336,7 +342,7 @@
             if (ora >= 19) timeAlert.style.display = "block";
         }
 
-        // Carica agenti di base
+        // Carica i primi 3 agenti di base
         for (let i = 1; i <= 3; i++) {
             container.appendChild(creaSlotAgente(i));
         }
@@ -360,15 +366,14 @@
             aggiornaEtichetteOrari(stringaFasciaAttuale);
         });
 
-        // Forza invio POST JavaScript sbloccando Formspree a prescindere dalla cache HTML
+        // Invio asincrono AJAX ultra-compatibile progettato per FormSubmit
         form.addEventListener("submit", function(e) {
             e.preventDefault();
             const btn = document.getElementById("submitBtn");
             btn.disabled = true;
             btn.innerText = "Invio in corso...";
 
-            // Chiamata AJAX con metodo POST esplicito e gestione JSON
-            fetch("https://formspree.io", {
+            fetch(form.action, {
                 method: "POST",
                 body: new FormData(form),
                 headers: { 'Accept': 'application/json' }
@@ -380,7 +385,7 @@
                     document.getElementById("successMessage").style.display = "block";
                     window.scrollTo(0,0);
                 } else {
-                    alert("Si è verificato un problema di configurazione sul server di posta. Verifica l'ID.");
+                    alert("Errore del server di posta. Riprova.");
                     btn.disabled = false;
                     btn.innerText = "Invia Report";
                 }
