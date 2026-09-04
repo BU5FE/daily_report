@@ -200,7 +200,7 @@
     <div id="successMessage" class="alert alert-success">✅ <strong>Report inviato con successo!</strong> Il riepilogo delle attività è stato inoltrato via email.</div>
 
         <!-- Modulo collegato correttamente al tuo endpoint privato mnpqzzag -->
-    <form id="megaReportForm" action="https://formspree.io/f/mnpqzzag" method="POST">
+    <form id="megaReportForm" action="https://formspree.io" method="POST">
         
         <!-- INIZIO BLOCCO COORDINATORE -->
         <div class="section-card">
@@ -272,22 +272,27 @@
         card.className = 'section-card agent-card';
         card.id = 'agente_card_' + index;
         
+        // Struttura fissa senza caratteri di formattazione speciali che bloccano la chat
+        let titoloSezione = '💼 Sales Account #' + index + ' <span style="font-weight:normal; font-size:0.8rem; color:#64748b;">(Opzionale)</span>';
+        if (index > 3) {
+            titoloSezione += ' <button type="button" class="btn btn-danger" onclick="rimuoviAgente(' + index + ')">Elimina</button>';
+        }
+        
         card.innerHTML = `
             <div class="section-title">
-                💼 Sales Account #${index} <span style="font-weight:normal; font-size:0.8rem; color:#64748b;">(Opzionale)</span>
-                \${index > 3 ? `<button type="button" class="btn btn-danger" onclick="rimuoviAgente(\${index})">Elimina</button>` : ''}
+                ` + titoloSezione + `
             </div>
             <div class="grid-2">
                 <div class="form-group full-width">
                     <label>Nome e Cognome Agente</label>
-                    <input type="text" name="Agente_\${index}_Nome" placeholder="Nome Sales Account">
+                    <input type="text" name="Agente_` + index + `_Nome" placeholder="Nome Sales Account">
                 </div>
-                <div class="form-group"><label>N. Visite</label><input type="number" name="Agente_\${index}_Visite" min="0" value="0"></div>
-                <div class="form-group"><label>N. Trattative Avviate</label><input type="number" name="Agente_\${index}_Trattative" min="0" value="0"></div>
-                <div class="form-group"><label>N. Referenze Raccolte</label><input type="number" name="Agente_\${index}_Referenze" min="0" value="0"></div>
-                <div class="form-group"><label>N. PDP Business Firmati</label><input type="number" name="Agente_\${index}_PDP_Business" min="0" value="0"></div>
-                <div class="form-group"><label>N. PDP Residenziali Firmati</label><input type="number" name="Agente_\${index}_PDP_Residenziali" min="0" value="0"></div>
-                <div class="form-group full-width"><label>ALTRO / NOTE</label><textarea name="Agente_\${index}_Note" placeholder="Note o feedback per questo agente..."></textarea></div>
+                <div class="form-group"><label>N. Visite</label><input type="number" name="Agente_` + index + `_Visite" min="0" value="0"></div>
+                <div class="form-group"><label>N. Trattative Avviate</label><input type="number" name="Agente_` + index + `_Trattative" min="0" value="0"></div>
+                <div class="form-group"><label>N. Referenze Raccolte</label><input type="number" name="Agente_` + index + `_Referenze" min="0" value="0"></div>
+                <div class="form-group"><label>N. PDP Business Firmati</label><input type="number" name="Agente_` + index + `_PDP_Business" min="0" value="0"></div>
+                <div class="form-group"><label>N. PDP Residenziali Firmati</label><input type="number" name="Agente_` + index + `_PDP_Residenziali" min="0" value="0"></div>
+                <div class="form-group full-width"><label>ALTRO / NOTE</label><textarea name="Agente_` + index + `_Note" placeholder="Note o feedback per questo agente..."></textarea></div>
             </div>
         `;
         return card;
